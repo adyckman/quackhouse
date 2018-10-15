@@ -3,6 +3,7 @@
 import sys
 import RPi.GPIO as GPIO
 import time
+from metrics import get_sun_elevation
 
 def open_door():
     GPIO.output(relay_pins, (GPIO.HIGH, GPIO.LOW))
