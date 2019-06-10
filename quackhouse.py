@@ -1,4 +1,4 @@
-#!./bin/python
+#!/usr/bin/python3
 import datetime, time, ephem, math, threading, logging
 from gpiozero import Motor
 
@@ -57,10 +57,10 @@ def main():
     while True:
         try:
             logging.info('The door is currently: %s', door_status)
-            if sun_altitude() > 10:
+            if sun_altitude() > 12:
                 if door_status == 'Closed' or door_status == None:
                     open_the_door.start()
-            if sun_altitude() < -6:
+            if sun_altitude() < -9:
                 if door_status == 'Open' or door_status == None:
                     close_the_door.start()
             time.sleep(5)
