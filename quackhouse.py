@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import datetime, time, ephem, math, threading, logging
 from gpiozero import Motor
 
@@ -33,6 +32,7 @@ def open_door():
     door_status = 'Opening'
     logging.info(door_status)
     motor.forward()
+#    time.sleep(1)
     time.sleep(60)
     motor.stop()
     door_status = 'Open'
@@ -44,6 +44,7 @@ def close_door():
     door_status = 'Closing'
     logging.info(door_status)
     motor.backward()
+#    time.sleep(1)
     time.sleep(60)
     motor.stop()
     door_status = 'Closed'
@@ -56,13 +57,15 @@ close_the_door = threading.Thread(name='Close Door', target=close_door)
 def main():
     while True:
         try:
-            logging.info('The door is currently: %s', door_status)
-            if sun_altitude() > 12:
+            logging.info("Door is: {1}, Sun elevation is: {0:.2f}".format(sun_altitude(), door_status))
+            if sun_altitude() > 5:
                 if door_status == 'Closed' or door_status == None:
                     open_the_door.start()
-            if sun_altitude() < -9:
+                    open_the_door.join()
+            if sun_altitude() < -9.0:
                 if door_status == 'Open' or door_status == None:
                     close_the_door.start()
+                    close_the_door.join()
             time.sleep(5)
         except Exception:
             Logger.exception()
