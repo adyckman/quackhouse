@@ -3,7 +3,7 @@ from gpiozero import Motor
 
 # Load Configuration File
 with open("config.yml", "r") as ymlfile:
-    cfg = yaml.load(ymlfile)
+    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 # Set up the linear actuator's motor and what pins on the Pi triggers the relays needed for each direction.  forward opens the door, backward closes it.
 motor = Motor(forward=cfg['pi']['forward_pin'], backward=cfg['pi']['backward_pin'])
@@ -56,21 +56,34 @@ def close_door():
     logging.info(door_status)
 
 # Sets up threading
-open_the_door = threading.Thread(name='Open Door', target=open_door)
-close_the_door = threading.Thread(name='Close Door', target=close_door)
+open_the_door = threading.Thread(target=open_door)
+close_the_door = threading.Thread(target=close_door)
+
+# Horrible printing of initial logging settings
+logging.info('Current Time: {0}'.format(datetime.datetime.localtime()))
+logging.info('LOCATION SETTINGS')
+logging.info("Latitude: {0}, Longitude: {1}, Elevation: {2}".format(cfg['location']['latitude'], cfg['location']['longitude'], cfg['location']['elevation']))
+logging.info('')
+logging.info('LOGGING SETTINGS')
+logging.info("Level: {0}, Filename: {1}, Format: {2}".format(cfg['logging']['level'], cfg['logging']['filename'], cfg['logging']['format']))
+logging.info('')
+logging.info('PI SETTINGS')
+logging.info("Forward Pin: {0}, Backward Pin: {1}".format(cfg['pi']['forward_pin'], cfg['pi']['backward_pin']))
+logging.info('')
+logging.info('DOOR SETTINGS')
+logging.info("Duration: {0}, Open Elevation: {1}, Close Elevation: {2}".format(cfg['door']['duration'], cfg['door']['open_elevation'], cfg['door']['close_elevation']))
+logging.info('')
 
 def main():
     while True:
         try:
             logging.info("Door is: {1}, Sun elevation is: {0:.2f}".format(sun_altitude(), door_status))
-            if sun_altitude() > 5:
+            if sun_altitude() > cfg['door']['open_elevation']:
                 if door_status == 'Closed' or door_status == None:
                     open_the_door.start()
-                    open_the_door.join()
-            if sun_altitude() < -9.0:
+            if sun_altitude() < cfg['door']['close_elevation']:
                 if door_status == 'Open' or door_status == None:
                     close_the_door.start()
-                    close_the_door.join()
             time.sleep(5)
         except Exception:
             logging.exception('Get an F in chat boys')
