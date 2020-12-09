@@ -1,0 +1,15 @@
+location:
+    latitude: 42
+    longitude: -88
+    elevation: 245
+logging:
+    level: 'logging.DEBUG'
+    filename: quackhouse.log
+    format: '%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s'
+pi:
+    forward_pin: 26
+    backward_pin: 20
+door:
+    duration: 60
+    open_elevation: 6
+    close_elevation: -9
