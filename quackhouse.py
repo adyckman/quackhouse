@@ -1,14 +1,21 @@
-import datetime, time, ephem, math, threading, logging
+import datetime, time, ephem, math, threading, logging, yaml
 from gpiozero import Motor
 
+# Load Configuration File
+with open("config.yml", "r") as ymlfile:
+    cfg = yaml.load(ymlfile)
+
 # Set up the linear actuator's motor and what pins on the Pi triggers the relays needed for each direction.  forward opens the door, backward closes it.
-motor = Motor(forward=26, backward=20)
+motor = Motor(forward=cfg['pi']['forward_pin'], backward=cfg['pi']['backward_pin'])
 
 # Instantanize the door's status
 door_status = None
 
 # Configure Logging
-logging.basicConfig(level=logging.DEBUG,filename='quackhouse.log',format='%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s')
+logging.basicConfig(level=cfg['logging']['level'],
+                    filename=cfg['logging']['filename'],
+                    format=cfg['logging']['format']
+                    )
 
 # This function calculates the sun's current relative position in the sky and returns the value in degrees.
 def sun_altitude():
@@ -16,9 +23,9 @@ def sun_altitude():
     sun = ephem.Sun()
     observer = ephem.Observer()
     #  Observer time and locaion settings here.  Based on Chicagoland, IL
-    observer.lat = '42' # Latitude
-    observer.lon = '-88' # Longitude
-    observer.elevation = 245 # Elevation in Meters
+    observer.lat = cfg['location']['latitude'] # Latitude
+    observer.lon = cfg['location']['longitude'] # Longitude
+    observer.elevation = cfg['location']['elevation'] # Elevation in Meters
     #  Set the current time (in UTC) here
     observer.date = datetime.datetime.utcnow()
     # Computes the position of the Sun from the time/location specified above
@@ -32,8 +39,7 @@ def open_door():
     door_status = 'Opening'
     logging.info(door_status)
     motor.forward()
-#    time.sleep(1)
-    time.sleep(60)
+    time.sleep(cfg['door']['duration'])
     motor.stop()
     door_status = 'Open'
     logging.info(door_status)
@@ -44,8 +50,7 @@ def close_door():
     door_status = 'Closing'
     logging.info(door_status)
     motor.backward()
-#    time.sleep(1)
-    time.sleep(60)
+    time.sleep(cfg['door']['duration'])
     motor.stop()
     door_status = 'Closed'
     logging.info(door_status)
@@ -68,7 +73,7 @@ def main():
                     close_the_door.join()
             time.sleep(5)
         except Exception:
-            Logger.exception()
+            logging.exception('Get an F in chat boys')
 
 if __name__ == '__main__':
     main()
