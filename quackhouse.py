@@ -46,7 +46,6 @@ def sun_altitude():
 # Open ze door
 def open_door():
     global door_status
-    logging.info('Initializing Door Opening')
     door_status = 'Opening'
     logging.info(door_status)
     if not args.test:
@@ -60,7 +59,6 @@ def open_door():
 # Close the door
 def close_door():
     global door_status
-    logging.info('Initializing Door Closing')
     door_status = 'Closing'
     logging.info(door_status)
     if not args.test:
@@ -77,17 +75,10 @@ close_the_door = threading.Thread(target=close_door)
 
 # Horrible printing of initial logging settings
 logging.info("Current Time: {time}, Initial Door Status: {status}, Test: {test}".format(time=datetime.datetime.utcnow(), status=door_status, test=str(args.test)))
-logging.info('LOCATION SETTINGS')
-logging.info("Latitude: {lat}, Longitude: {lon}, Elevation: {elev}".format(lat=cfg['location']['latitude'], lon=cfg['location']['longitude'], elev=cfg['location']['elevation']))
-logging.info('')
-logging.info('LOGGING SETTINGS')
-logging.info("Level: {lev}, Filename: {file}, Format: {format}".format(lev=cfg['logging']['level'], file=cfg['logging']['filename'], format=cfg['logging']['format']))
-logging.info('')
-logging.info('PI SETTINGS')
-logging.info("Forward Pin: {fwd}, Backward Pin: {back}".format(fwd=cfg['pi']['forward_pin'], back=cfg['pi']['backward_pin']))
-logging.info('')
-logging.info('DOOR SETTINGS')
-logging.info("Duration: {dur}, Open Elevation: {open}, Close Elevation: {close}".format(dur=cfg['door']['duration'], open=cfg['door']['open_elevation'], close=cfg['door']['close_elevation']))
+logging.info("LOCATION SETTINGS - Latitude: {lat}, Longitude: {lon}, Elevation: {elev}".format(lat=cfg['location']['latitude'], lon=cfg['location']['longitude'], elev=cfg['location']['elevation']))
+logging.info("LOGGING SETTINGS - Level: {lev}, Filename: {file}, Format: {format}".format(lev=cfg['logging']['level'], file=cfg['logging']['filename'], format=cfg['logging']['format']))
+logging.info("PI SETTINGS - Forward Pin: {fwd}, Backward Pin: {back}".format(fwd=cfg['pi']['forward_pin'], back=cfg['pi']['backward_pin']))
+logging.info("DOOR SETTINGS - Duration: {dur}, Open Elevation: {open}, Close Elevation: {close}".format(dur=cfg['door']['duration'], open=cfg['door']['open_elevation'], close=cfg['door']['close_elevation']))
 logging.info('')
 
 def main():
