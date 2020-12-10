@@ -26,20 +26,3 @@ This assumes you're using two relays to control the polarity of a DC motor (line
 
 DOOR:
 Duration is how long it takes for your linear actuator to fully open or close the door.  Default is one minute (60 seconds).  Open Elevation and Close Elevation are when you wish the door to open/close.  These values are the elevation of the Sun in degrees; 0 is on the horizon for all intents and purposes; 90 would be directly above you.
-
-location:
-    latitude: 'add latitude'
-    longitude: 'add longitude'
-    elevation: 0
-logging:
-    level: DEBUG
-    filename: quackhouse.log
-    format: '%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s'
-    frequency: 15
-pi:
-    forward_pin: 0
-    backward_pin: 0
-door:
-    duration: 60
-    open_elevation: 6
-    close_elevation: -6
