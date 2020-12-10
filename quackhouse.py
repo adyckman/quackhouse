@@ -60,7 +60,7 @@ open_the_door = threading.Thread(target=open_door)
 close_the_door = threading.Thread(target=close_door)
 
 # Horrible printing of initial logging settings
-logging.info('Current Time: {0}'.format(datetime.datetime.localtime()))
+logging.info('Current Time: {0}'.format(datetime.datetime.utcnow()))
 logging.info('LOCATION SETTINGS')
 logging.info("Latitude: {0}, Longitude: {1}, Elevation: {2}".format(cfg['location']['latitude'], cfg['location']['longitude'], cfg['location']['elevation']))
 logging.info('')
@@ -86,7 +86,7 @@ def main():
                     close_the_door.start()
             time.sleep(5)
         except Exception:
-            logging.exception('Get an F in chat boys')
+            logging.exception('Get an F in chat boys, this script was started in that narrow timeframe where the door would by default be neither open nor closed')
 
 if __name__ == '__main__':
     main()
