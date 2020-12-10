@@ -1,5 +1,16 @@
-import datetime, time, ephem, math, threading, logging, yaml
+import datetime, time, ephem, math, threading, logging, yaml, argparse
 from gpiozero import Motor
+
+# Take in initial door status from commandline
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--state', type=str, required=True, help='Current state of the door.  Either Opened or Closed')
+args = parser.parse_args()
+if ((args.state != 'Opened') and (args.state != 'Closed')):
+    print('You specified {0}, not "Opened" or "Closed" - try again stupid'.format(args.state))
+    quit()
+else:
+    door_status = args.state
 
 # Load Configuration File
 with open("config.yml", "r") as ymlfile:
@@ -8,8 +19,6 @@ with open("config.yml", "r") as ymlfile:
 # Set up the linear actuator's motor and what pins on the Pi triggers the relays needed for each direction.  forward opens the door, backward closes it.
 motor = Motor(forward=cfg['pi']['forward_pin'], backward=cfg['pi']['backward_pin'])
 
-# Instantanize the door's status
-door_status = None
 
 # Configure Logging
 logging.basicConfig(level=cfg['logging']['level'],
@@ -60,7 +69,7 @@ open_the_door = threading.Thread(target=open_door)
 close_the_door = threading.Thread(target=close_door)
 
 # Horrible printing of initial logging settings
-logging.info('Current Time: {0}'.format(datetime.datetime.utcnow()))
+logging.info('Current Time: {0}, Initial Door Status: {1}'.format(datetime.datetime.utcnow()), door_status)
 logging.info('LOCATION SETTINGS')
 logging.info("Latitude: {0}, Longitude: {1}, Elevation: {2}".format(cfg['location']['latitude'], cfg['location']['longitude'], cfg['location']['elevation']))
 logging.info('')
