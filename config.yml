@@ -6,10 +6,11 @@ logging:
     level: DEBUG
     filename: quackhouse.log
     format: '%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s'
+    frequency: 15
 pi:
-    forward_pin: 26
-    backward_pin: 20
+    forward_pin: 0
+    backward_pin: 0
 door:
     duration: 60
     open_elevation: 6
-    close_elevation: -9
+    close_elevation: -6
