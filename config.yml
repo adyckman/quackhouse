@@ -1,7 +1,7 @@
 location:
-    latitude: 'change to lat'
-    longitude: 'change to long'
-    elevation: change to elevation in meters without quotes
+    latitude: '42.262380'
+    longitude: '-88.127720'
+    elevation: 240
 logging:
     level: DEBUG
     filename: quackhouse.log
