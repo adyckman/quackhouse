@@ -96,6 +96,8 @@ if not args.test:
 open_door = threading.Thread(target=door,args=('open',))
 close_door = threading.Thread(target=door,args=('close',))
 
+door_status = args.state
+
 # Log setup
 logger()
 initial_log()
@@ -103,16 +105,16 @@ initial_log()
 def main():
     while True:
         try:
-            logging.info("Door Status: {1}, Sun Elevation: {0:.2f}".format(sun_altitude(), door_status))
             if sun_altitude() > cfg['door']['open_elevation']:
                 if door_status == 'close':
                     open_door.start()
             if sun_altitude() < cfg['door']['close_elevation']:
                 if door_status == 'open':
                     close_door.start()
+            logging.info("Door Status: {1}, Sun Elevation: {0:.2f}".format(sun_altitude(), door_status))
             sleep(cfg['logging']['frequency'])
         except Exception:
-            logging.exception('Get an F in chat boys, this script was started in that narrow timeframe where the door would by default be neither open nor closed')
+            logging.exception('Get an F in chat boys, this script was started in that narrow timeframe where the door would by default be neither open nor closed.  Door status: {}'.format(door_status))
             quit()
 
 if __name__ == '__main__':
