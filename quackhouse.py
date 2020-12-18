@@ -31,9 +31,9 @@ def sun_next():
     sun, observer = locale()
     observer.horizon = str(sun_altitude())
     if sun_altitude() > cfg['door']['open_elevation']:
-        return observer.next_setting(ephem.Sun())
+        return str(observer.next_setting(sun))
     if sun_altitude() < cfg['door']['close_elevation']:
-        return observer.next_rising(ephem.Sun())
+        return str(observer.next_rising(sun))
 
 # Door functioning
 def door(dir):
@@ -65,7 +65,6 @@ def door(dir):
         next_dir = 'Opening'
 
     logging.info('Next action: Door {} at {}'.format(next_dir, sun_next()))
-    return door_status, next_dir
 
 # Horrible printing of initial logging settings
 def initial_log():
