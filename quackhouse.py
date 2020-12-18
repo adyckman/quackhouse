@@ -106,7 +106,7 @@ initial_log()
 def main():
     while True:
         try:
-            if door_status in ('Open', 'Opening', 'Close', 'Closing'):
+            if door_status in ('Open', 'Opening', 'Closed', 'Closing'):
                 logging.info("Door Status: {1}, Sun Elevation: {0:.2f}".format(sun_altitude(), door_status))
                 if sun_altitude() > cfg['door']['open_elevation']:
                     if door_status == 'Closed':
