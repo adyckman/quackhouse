@@ -37,12 +37,13 @@ def sun_next():
 
 # Door functioning
 def door(dir):
-    if dir == 'open':
+    global door_status
+    if dir == 'up':
         logging.info('Door is opening')
         door_status = 'Opening'
         if not args.test:
             motor.forward()
-    elif dir == 'close':
+    elif dir == 'down':
         logging.info('Door is closing')
         door_status = 'Closing'
         if not args.test:
@@ -56,7 +57,7 @@ def door(dir):
         motor.stop()
     
     if door_status == 'Opening':
-        door_status = 'Opened'
+        door_status = 'Open'
         next_dir = 'Closing'
     
     if door_status == 'Closing':
@@ -84,8 +85,8 @@ parser.add_argument('--state', type=str, required=True, help='Current state of t
 parser.add_argument('--test', action='store_true', 
     help="Runs in test mode without invoking the Rasperry Pi pins")
 args = parser.parse_args()
-if ((args.state != 'open') and (args.state != 'close')):
-    print('You specified {}, not "open" or "close" - try again stupid'.format(args.state))
+if ((args.state != 'Open') and (args.state != 'Closed')):
+    print('You specified {}, not "Open" or "Closed" - try again stupid'.format(args.state))
     quit()
 
 # Set up the linear actuator's motor and what pins on the Pi triggers the relays needed for each direction.  forward opens the door, backward closes it.
@@ -93,8 +94,8 @@ if not args.test:
     motor = Motor(forward=cfg['pi']['forward_pin'], backward=cfg['pi']['backward_pin'])
 
 # Sets up threading
-open_door = threading.Thread(target=door,args=('open',))
-close_door = threading.Thread(target=door,args=('close',))
+open_door = threading.Thread(target=door,args=('up',))
+close_door = threading.Thread(target=door,args=('down',))
 
 door_status = args.state
 
@@ -105,14 +106,15 @@ initial_log()
 def main():
     while True:
         try:
-            if sun_altitude() > cfg['door']['open_elevation']:
-                if door_status == 'close':
-                    open_door.start()
-            if sun_altitude() < cfg['door']['close_elevation']:
-                if door_status == 'open':
-                    close_door.start()
-            logging.info("Door Status: {1}, Sun Elevation: {0:.2f}".format(sun_altitude(), door_status))
-            sleep(cfg['logging']['frequency'])
+            if door_status in ('Open', 'Opening', 'Close', 'Closing'):
+                logging.info("Door Status: {1}, Sun Elevation: {0:.2f}".format(sun_altitude(), door_status))
+                if sun_altitude() > cfg['door']['open_elevation']:
+                    if door_status == 'Closed':
+                        open_door.start()
+                if sun_altitude() < cfg['door']['close_elevation']:
+                    if door_status == 'Open':
+                        close_door.start()
+                sleep(cfg['logging']['frequency'])
         except Exception:
             logging.exception('Get an F in chat boys, this script was started in that narrow timeframe where the door would by default be neither open nor closed.  Door status: {}'.format(door_status))
             quit()
