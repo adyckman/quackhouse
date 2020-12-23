@@ -39,13 +39,11 @@ def sun_next():
 def door(dir):
     global door_status
     if dir == 'up':
-        logging.info('Door is opening')
-        door_status = 'Opening'
+        logging.info('Door is Opening')
         if not args.test:
             motor.forward()
     elif dir == 'down':
         logging.info('Door is closing')
-        door_status = 'Closing'
         if not args.test:
             motor.backward()
     else:
@@ -108,14 +106,16 @@ def main():
             if door_status in ('Open', 'Opening', 'Closed', 'Closing'):
                 logging.info("Door Status: {1}, Sun Elevation: {0:.2f}".format(sun_altitude(), door_status))
                 if sun_altitude() > cfg['door']['open_elevation']:
-                    if door_status == 'Closed':
+                    if door_status == 'Closed' and not open_door.is_alive():
+                        door_status = 'Opening'
                         open_door.start()
                 if sun_altitude() < cfg['door']['close_elevation']:
-                    if door_status == 'Open':
+                    if door_status == 'Open' and not close_door.is_alive():
+                        door_status = 'Closing'
                         close_door.start()
                 sleep(cfg['logging']['frequency'])
         except Exception:
-            logging.exception('Get an F in chat boys, this script was started in that narrow timeframe where the door would by default be neither open nor closed.  Door status: {}'.format(door_status))
+            logging.exception('Something fucky happened in the main function.  Door status: {}'.format(door_status))
             quit()
 
 if __name__ == '__main__':
