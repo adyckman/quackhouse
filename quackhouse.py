@@ -116,7 +116,6 @@ def main():
                 sleep(cfg['logging']['frequency'])
         except Exception:
             logging.exception('Something fucky happened in the main function.  Door status: {}'.format(door_status))
-            quit()
 
 if __name__ == '__main__':
     main()
