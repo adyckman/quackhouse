@@ -3,4 +3,4 @@ ephem==3.7.7.1
 gpiozero==1.5.0
 pkg-resources==0.0.0
 RPi.GPIO==0.6.5
-PyYAML==5.3.1
+PyYAML==5.4
