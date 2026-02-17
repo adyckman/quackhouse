@@ -1,6 +1,5 @@
-colorzero==1.1
-ephem==3.7.7.1
-gpiozero==1.5.0
-pkg-resources==0.0.0
-RPi.GPIO==0.6.5
-PyYAML==5.3.1
+colorzero~=1.1
+ephem~=4.1
+gpiozero~=1.6
+RPi.GPIO~=0.7
+PyYAML~=6.0

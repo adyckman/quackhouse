@@ -1,2 +1,5 @@
 quackhouse.log
 config.yml
+__pycache__/
+.venv/
+.pytest_cache/
