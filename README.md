@@ -1,41 +1,62 @@
 # quackhouse
+
 Managing the quackhouse! (My ducks' home)
 
-This script is for automating a linear actuator using a Raspberry Pi and two mechanical relays.  The linear actuator opens and closes a sliding door to my duckhouse, keeping the little quackers safe inside their home overnight.  The script is multithreaded and utilizes logging.  It determines when to open and close the door based on the position of the Sun in the sky, in turn how much light is outside (the ducks go into their house at about civil twilight, or when the sun is -6 degrees from the visible horizon).  These settings are changeable in config.yml.  Pi settings are going to depend based on your relay setup, I will some day include some more detailed instructions on this.
+This script automates a linear actuator using a Raspberry Pi and two mechanical relays. The linear actuator opens and closes a sliding door to my duckhouse, keeping the little quackers safe inside their home overnight. The script is multithreaded and utilizes logging. It determines when to open and close the door based on the position of the Sun in the sky — specifically how much light is outside (the ducks go into their house at about civil twilight, or when the sun is -6 degrees from the visible horizon). These settings are changeable in `config.yml`. Pi settings depend on your relay setup; I will some day include more detailed instructions on this.
 
-Basic virtual environment setup:
+## Setup
 
-python3 -m venv quackhouse
-
-source quackhouse/bin/activate
-
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install pip --upgrade
-
 pip install -r requirements.txt
+```
 
-Basic usage:
+## Configuration
 
-You'll want to change the config.yml file with your desired settings.
+Copy or create a `config.yml` file with your desired settings. A template is included in the repo.
 
-Execution:
+### Location
 
+- `latitude` / `longitude` — must be string values (keep single quotes in the YAML)
+- `elevation` — your elevation in meters (number, no quotes). Not critical unless precise timing is needed.
+
+### Logging
+
+Status messages that let you track the Sun's position and door state. `frequency` controls how many seconds to wait between checks. `filename` should be in the same directory as the script.
+
+### Pi
+
+Assumes you're using two relays to control the polarity of a DC motor (linear actuator). `forward_pin` and `backward_pin` specify which GPIO pins control each relay.
+
+### Door
+
+- `duration` — how long (in seconds) it takes for your linear actuator to fully open or close the door (default: 60)
+- `open_elevation` / `close_elevation` — the Sun's elevation in degrees at which the door should open or close (0 = horizon, 90 = directly overhead)
+
+## Usage
+
+```bash
 python3 quackhouse.py --state <Open/Closed> --test
+```
 
-Two simple flags.  --state accepts two values; either Open or Closed.  Case sensitive.  This should be set to whatever the state of the door currently is when you run the script.  When you first execute this script, this value will determine whether the door should immediately open/closed based on the current time and sun position to update how it should be.  The --test flag is useful for monitoring behavior without actually operating the door.
+- `--state` — the current state of the door when you start the script (`Open` or `Closed`, case-sensitive). On first run, the script will immediately open or close the door based on the current sun position.
+- `--test` — run without invoking the Raspberry Pi GPIO pins (useful for monitoring behavior without operating the door)
 
-LOCATION:
+## Testing
 
-Latitude and Longitude values must ALWAYS be string values, so ensure single quotes remain there
-Elevation is your current elevation in meters.  This value must always be a number value. ensure no quotes are here.  This value isn't incredibly important unless precise time calculations are necessary for your application.
+```bash
+source .venv/bin/activate
+python3 -m pytest test_quackhouse.py -v
+```
 
-LOGGING:
+## Architecture
 
-Generally speaking this will gnaw away at your disk space with status messages that let you track the status of the Sun and your door as the script thinks it.  Frequency controls how long each check should wait before checking again.  Filename should be in the same directory as your executed script.
+The core logic lives in the `DoorController` class in `quackhouse.py`:
 
-PI:
-
-This assumes you're using two relays to control the polarity of a DC motor (linear actuator), and as such, which pin controls each relay.  I will provide additional set up for this at a later time.
-
-DOOR:
-
-Duration is how long it takes for your linear actuator to fully open or close the door.  Default is one minute (60 seconds).  Open Elevation and Close Elevation are when you wish the door to open/close.  These values are the elevation of the Sun in degrees; 0 is on the horizon for all intents and purposes; 90 would be directly above you.
+- **Thread-safe** door status via `threading.Lock`
+- **New threads** created per door action (avoids Python's thread-reuse limitation)
+- **Graceful shutdown** on SIGINT/SIGTERM
+- **Config validation** at startup — catches bad values before the loop starts
+- **Conditional GPIO import** — the module can be imported and tested on non-Pi machines
